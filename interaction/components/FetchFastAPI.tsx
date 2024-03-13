@@ -15,7 +15,12 @@ const FetchFastAPI = () => {
   }, []);
 
   if (data === null) return <p>Loading...</p>;
-  return <p>{data.Greet}</p>;
+  return (
+    <p>
+      Fetch한 데이터:{" "}
+      <span style={{ backgroundColor: "black", color: "white" }}>{data.Greet}</span>
+    </p>
+  );
 };
 
 export default FetchFastAPI;
