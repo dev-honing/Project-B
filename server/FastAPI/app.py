@@ -1,7 +1,7 @@
 # app.py
 
 # FastAPI
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # FastAPI 애플리케이션 생성
