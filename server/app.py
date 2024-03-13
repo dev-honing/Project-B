@@ -9,11 +9,14 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
 # FastAPI
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 # Pydantic
 from pydantic import BaseModel
+
+# typing
+from typing import List
 
 load_dotenv() # .env 파일에서 환경 변수 로드
 
@@ -62,23 +65,23 @@ def get_db():
 # FastAPI 애플리케이션 생성
 app = FastAPI()
 
-# 이미지 메타 데이터 생성
-@app.post("/imageMeta/", response_model=ImageMetaIn)
-def create_imagemeta(imagemeta: ImageMetaIn, db: Session = Depends(get_db)):
-    db_imagemeta = ImageMeta(**imagemeta.dict())
-    db.add(db_imagemeta)
-    db.commit()
-    db.refresh(db_imagemeta)
-    return db_imagemeta
+# # 이미지 메타 데이터 생성
+# @app.post("/imageMeta/", response_model=ImageMetaIn)
+# def create_imagemeta(imagemeta: ImageMetaIn, db: Session = Depends(get_db)):
+#     db_imagemeta = ImageMeta(**imagemeta.dict())
+#     db.add(db_imagemeta)
+#     db.commit()
+#     db.refresh(db_imagemeta)
+#     return db_imagemeta
 
-# 예제 데이터 추가
-@app.on_event("startup")
-async def startup_event():
-    db = SessionLocal()
-    for i in range(1, 6):
-        db_imagemeta = ImageMeta(filename=f"file{i}.jpg", filesize=i*1000, filetype="image/jpeg")
-        db.add(db_imagemeta)
-    db.commit()
+# # 예제 데이터 추가
+# @app.on_event("startup")
+# async def startup_event():
+#     db = SessionLocal()
+#     for i in range(1, 6):
+#         db_imagemeta = ImageMeta(filename=f"file{i}.jpg", filesize=i*1000, filetype="image/jpeg")
+#         db.add(db_imagemeta)
+#     db.commit()
 
 # Pydantic 모델 정의
 class ImageMetaOut(BaseModel):
@@ -88,11 +91,11 @@ class ImageMetaOut(BaseModel):
     filesize: int
     filetype: str
 
-# 이미지 메타 데이터 조회
-@app.get("/imageMeta/{image_id}", response_model=ImageMetaOut)
-def read_imagemeta(image_id: int, db: Session = Depends(get_db)):
-    db_imagemeta = db.query(ImageMeta).filter(ImageMeta.id == image_id).first()
-    if db_imagemeta is None:
+# 이미지 메타 데이터 조회 (전체)
+@app.get("/imageMeta/", response_model=List[ImageMetaOut])
+def read_all_imagemeta(db: Session = Depends(get_db)):
+    db_imagemeta = db.query(ImageMeta).all()
+    if not db_imagemeta:
         raise HTTPException(status_code=404, detail="ImageMeta not found")
     return db_imagemeta
 
