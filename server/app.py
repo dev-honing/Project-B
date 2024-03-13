@@ -3,7 +3,8 @@
 # MariaDB
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from datetime import datetime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -29,6 +30,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expi
 # 모델의 기반 클래스
 Base = declarative_base()
 
+# 테이블 정의
+class ImageMeta(Base):
+    __tablename__ = "imageMeta" # 테이블 이름
+    id = Column(Integer, primary_key=True, index=True) # id
+    filename = Column(String(255), index=True) # 파일명
+    created_at = Column(DateTime, default=datetime.now) # 생성일시
+    filesize = Column(Integer) # 파일 크기
+    filetype = Column(String(255)) # 파일 타입
+
+# 테이블 생성
+Base.metadata.create_all(bind=engine)
+
+# FastAPI 애플리케이션 생성
 app = FastAPI()
 
 # CORS 설정
