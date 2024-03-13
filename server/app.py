@@ -78,23 +78,7 @@ app = FastAPI()
 #     db.commit()
 #     db.refresh(db_imagemeta)
 #     return db_imagemeta
-# # 이미지 메타 데이터 생성
-# @app.post("/imageMeta/", response_model=ImageMetaIn)
-# def create_imagemeta(imagemeta: ImageMetaIn, db: Session = Depends(get_db)):
-#     db_imagemeta = ImageMeta(**imagemeta.dict())
-#     db.add(db_imagemeta)
-#     db.commit()
-#     db.refresh(db_imagemeta)
-#     return db_imagemeta
 
-# # 예제 데이터 추가
-# @app.on_event("startup")
-# async def startup_event():
-#     db = SessionLocal()
-#     for i in range(1, 6):
-#         db_imagemeta = ImageMeta(filename=f"file{i}.jpg", filesize=i*1000, filetype="image/jpeg")
-#         db.add(db_imagemeta)
-#     db.commit()
 # # 예제 데이터 추가
 # @app.on_event("startup")
 # async def startup_event():
