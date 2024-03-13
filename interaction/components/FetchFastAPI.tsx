@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 interface Data {
-  Hello: string;
+  Greet: string;
 }
 
 const FetchFastAPI = () => {
@@ -15,7 +15,7 @@ const FetchFastAPI = () => {
   }, []);
 
   if (data === null) return <p>Loading...</p>;
-  return <p>{data.Hello}</p>;
+  return <p>{data.Greet}</p>;
 };
 
 export default FetchFastAPI;
