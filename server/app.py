@@ -80,6 +80,21 @@ async def startup_event():
         db.add(db_imagemeta)
     db.commit()
 
+# Pydantic 모델 정의
+class ImageMetaOut(BaseModel):
+    id: int
+    filename: str
+    created_at: datetime
+    filesize: int
+    filetype: str
+
+# 이미지 메타 데이터 조회
+@app.get("/imageMeta/{image_id}", response_model=ImageMetaOut)
+def read_imagemeta(image_id: int, db: Session = Depends(get_db)):
+    db_imagemeta = db.query(ImageMeta).filter(ImageMeta.id == image_id).first()
+    if db_imagemeta is None:
+        raise HTTPException(status_code=404, detail="ImageMeta not found")
+    return db_imagemeta
 
 # CORS 설정
 # 허용할 주소
