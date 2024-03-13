@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 interface S3Response {
-  message: string;
+  objects: string[];
 }
 
 const FetchS3 = () => {
@@ -12,7 +12,7 @@ const FetchS3 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/bhn-s3');
+        const response = await fetch('http://localhost:8000/bhn-s3');
         const responseData = await response.json();
         setData(responseData);
       } catch (error) {
@@ -25,9 +25,13 @@ const FetchS3 = () => {
 
   return (
     <div>
-      <h1>S3 Storage 연결 상태</h1>
+      <h1>S3 Storage Bucket 목록 보기</h1>
       {data ? (
-        <p>{data.message}</p>
+        <ul>
+          {data.objects.map((object, index) => (
+            <li key={index}>{object}</li>
+          ))}
+        </ul>
       ) : (
         <p>로딩 중...</p>
       )}

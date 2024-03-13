@@ -123,3 +123,25 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Greet": "Hello, FastAPI!"}
+
+# S3 클라이언트 생성
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION_NAME")
+)
+
+# S3 Storage 연결
+@app.get("/bhn-s3")
+def list_all_objects():
+    try:
+        all_objects = []
+        paginator = s3_client.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket="bhns3bucket"):
+            if "Contents" in page:
+                for obj in page["Contents"]:
+                    all_objects.append(obj["Key"])
+        return {"objects": all_objects}
+    except Exception as e:
+        return {"error": str(e)}
