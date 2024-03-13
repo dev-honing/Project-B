@@ -15,6 +15,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Pydantic
 from pydantic import BaseModel
 
+# S3
+import boto3
+
 load_dotenv() # .env 파일에서 환경 변수 로드
 
 DB_USER = os.getenv("DB_USER")
@@ -47,7 +50,9 @@ Base.metadata.create_all(bind=engine)
 
 # Pydantic 모델 정의
 class ImageMetaIn(BaseModel):
+    id: int
     filename: str
+    created_at: datetime
     filesize: int
     filetype: str
     
@@ -58,27 +63,27 @@ def get_db():
         yield db
     finally:
         db.close()
-    
+        
 # FastAPI 애플리케이션 생성
 app = FastAPI()
 
-# 이미지 메타 데이터 생성
-@app.post("/imageMeta/", response_model=ImageMetaIn)
-def create_imagemeta(imagemeta: ImageMetaIn, db: Session = Depends(get_db)):
-    db_imagemeta = ImageMeta(**imagemeta.dict())
-    db.add(db_imagemeta)
-    db.commit()
-    db.refresh(db_imagemeta)
-    return db_imagemeta
+# # 이미지 메타 데이터 생성
+# @app.post("/imageMeta/", response_model=ImageMetaIn)
+# def create_imagemeta(imagemeta: ImageMetaIn, db: Session = Depends(get_db)):
+#     db_imagemeta = ImageMeta(**imagemeta.dict())
+#     db.add(db_imagemeta)
+#     db.commit()
+#     db.refresh(db_imagemeta)
+#     return db_imagemeta
 
-# 예제 데이터 추가
-@app.on_event("startup")
-async def startup_event():
-    db = SessionLocal()
-    for i in range(1, 6):
-        db_imagemeta = ImageMeta(filename=f"file{i}.jpg", filesize=i*1000, filetype="image/jpeg")
-        db.add(db_imagemeta)
-    db.commit()
+# # 예제 데이터 추가
+# @app.on_event("startup")
+# async def startup_event():
+#     db = SessionLocal()
+#     for i in range(1, 6):
+#         db_imagemeta = ImageMeta(filename=f"file{i}.jpg", filesize=i*1000, filetype="image/jpeg")
+#         db.add(db_imagemeta)
+#     db.commit()
 
 # Pydantic 모델 정의
 class ImageMetaOut(BaseModel):
@@ -115,3 +120,22 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"Hello": "FastAPI!"}
+
+
+# S3 클라이언트 생성
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION_NAME")
+)
+
+# S3 Storage 연결
+@app.get("/bhn-s3")
+def s3_connection():
+    try:
+        # S3 버킷에 대한 리스트 객체 가져오기
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME)
+        return {"message": "S3 스토리지 연결 성공"}
+    except Exception as e:
+        return {"error": str(e)}
