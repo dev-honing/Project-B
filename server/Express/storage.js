@@ -4,9 +4,16 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const AWS = require('aws-sdk');
+const cors = require('cors');
 
 // dotenv 설정
 dotenv.config({ path: "../../.env" });
+
+// CORS 설정
+app.use(cors({
+  origin: 'http://localhost:3000', // Next App
+  credentials: true
+}));
 
 // AWS 설정
 const s3 = new AWS.S3({
