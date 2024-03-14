@@ -1,6 +1,6 @@
 // components/FetchS3.tsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface S3Response {
   Key: string;
@@ -14,11 +14,23 @@ const FetchS3 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5555/bhn-s3');
-        const responseData = await response.json();
-        setData(responseData);
+        const response = await fetch("http://localhost:5555/bhn-s3");
+        const responseData: S3Response[] = await response.json();
+        // 데이터 변환: 한국 시간으로 변환하고 분 단위까지만 표시
+        const formattedData = responseData.map((item) => ({
+          ...item,
+          LastModified: new Date(item.LastModified).toLocaleString("ko-KR", {
+            hour12: false,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }));
+        setData(formattedData);
       } catch (error) {
-        console.error('Error fetching S3 data:', error);
+        console.error("Error fetching S3 data:", error);
       }
     };
 
@@ -34,7 +46,7 @@ const FetchS3 = () => {
             <tr>
               <th>파일 이름</th>
               <th>파일 크기</th>
-              <th>마지막 수정 날짜</th>
+              <th>편집 일시</th>
             </tr>
           </thead>
           <tbody>
