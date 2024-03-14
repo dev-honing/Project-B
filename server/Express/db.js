@@ -7,6 +7,9 @@ require('dotenv').config({ path: '../../.env'});
 
 const app = express();
 
+// JSON 파싱 미들웨어 추가
+app.use(express.json());
+
 // CORS 설정
 app.use(cors({
   origin: 'http://localhost:3000', // Next App
@@ -47,7 +50,7 @@ app.post('/createDynamicTables', async (req, res) => {
     const tables = Array.from({ length: numTables }, (_, index) => `${tableName}-${index + 1}`);
 
     const promises = tables.map(async (tableName) => {
-      const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (
+      const sql = `CREATE TABLE IF NOT EXISTS \`${tableName}\` (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL
