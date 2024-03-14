@@ -14,6 +14,7 @@ const FetchS3 = () => {
       try {
         const response = await fetch('http://localhost:5555/bhn-s3');
         const responseData = await response.json();
+        console.log(responseData); // 데이터 확인
         setData(responseData);
       } catch (error) {
         console.error('Error fetching S3 data:', error);
