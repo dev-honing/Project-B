@@ -12,7 +12,7 @@ const FetchS3 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/bhn-s3');
+        const response = await fetch('http://localhost:5555/bhn-s3');
         const responseData = await response.json();
         setData(responseData);
       } catch (error) {
