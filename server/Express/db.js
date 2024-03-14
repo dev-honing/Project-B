@@ -26,10 +26,31 @@ const pool = mysql.createPool({
 app.set('dbPool', pool);
 
 // API 엔드 포인트 생성
+// imageMeta 테이블에서 모든 데이터를 가져오는 API 엔드 포인트
 app.get('/imageMeta', async (req, res) => {
   const pool = req.app.get('dbPool');
   const [rows, fields] = await pool.query('SELECT * FROM imagemeta');
   res.json(rows);
+});
+
+// 동적 테이블 생성을 위한 API 엔드 포인트
+app.post('/createDynamicTable/:tableName', async (req, res) => {
+  const pool = req.app.get('dbPool');
+  const tableName = req.params.tableName;
+
+  const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL
+  )`;
+
+  try {
+    await pool.query(sql);
+    res.status(200).send(`${tableName} 테이블이 성공적으로 생성되었습니다.`);
+  } catch (error) {
+    console.error('테이블 생성 오류:', error);
+    res.status(500).send('테이블 생성 중 오류가 발생했습니다.');
+  }
 });
 
 // Express 애플리케이션을 실행
