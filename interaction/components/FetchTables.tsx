@@ -14,7 +14,7 @@ const FetchTables = () => {
   const [data, setData] = useState<ImageMeta[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/imageMeta')
+    fetch('http://localhost:3333/imageMeta')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch data');

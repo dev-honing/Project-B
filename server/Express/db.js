@@ -18,6 +18,13 @@ const pool = mysql.createPool({
 // 데이터베이스 연결 풀을 Express 애플리케이션에 추가
 app.set('dbPool', pool);
 
+// API 엔드 포인트 생성
+app.get('/imageMeta', async (req, res) => {
+  const pool = req.app.get('dbPool');
+  const [rows, fields] = await pool.query('SELECT * FROM imagemeta');
+  res.json(rows);
+});
+
 // Express 애플리케이션을 실행
 const PORT = 3333;
 app.listen(PORT, () => {
