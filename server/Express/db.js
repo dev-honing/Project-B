@@ -2,9 +2,16 @@
 
 const express = require('express');
 const mysql = require('mysql2/promise');
+const cors = require('cors');
 require('dotenv').config({ path: '../../.env'});
 
 const app = express();
+
+// CORS 설정
+app.use(cors({
+  origin: 'http://localhost:3000', // Next App
+  credentials: true
+}));
 
 // MySQL 연결 풀 생성
 const pool = mysql.createPool({
