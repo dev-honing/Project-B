@@ -34,22 +34,33 @@ app.get('/imageMeta', async (req, res) => {
 });
 
 // 동적 테이블 생성을 위한 API 엔드 포인트
-app.post('/createDynamicTable/:tableName', async (req, res) => {
-  const pool = req.app.get('dbPool');
-  const tableName = req.params.tableName;
-
-  const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL
-  )`;
-
+app.post('/createDynamicTables', async (req, res) => {
   try {
-    await pool.query(sql);
-    res.status(200).send(`${tableName} 테이블이 성공적으로 생성되었습니다.`);
+    const pool = req.app.get('dbPool');
+    const { tableName, numTables } = req.body; // 클라이언트에서 전송한 테이블 이름과 생성할 테이블의 수
+
+    if (!tableName || !numTables) {
+      // 클라이언트에서 요청한 데이터가 유효하지 않을 경우 에러 처리
+      return res.status(400).send('테이블 이름과 생성할 테이블 수를 모두 제공해야 합니다.');
+    }
+
+    const tables = Array.from({ length: numTables }, (_, index) => `${tableName}-${index + 1}`);
+
+    const promises = tables.map(async (tableName) => {
+      const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL
+      )`;
+      await pool.query(sql);
+    });
+
+    await Promise.all(promises);
+
+    return res.status(200).send(`${numTables}개의 테이블이 성공적으로 생성되었습니다.`);
   } catch (error) {
     console.error('테이블 생성 오류:', error);
-    res.status(500).send('테이블 생성 중 오류가 발생했습니다.');
+    return res.status(500).send('테이블 생성 중 오류가 발생했습니다.');
   }
 });
 
